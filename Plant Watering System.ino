@@ -43,22 +43,6 @@ void setup()
   _buffer.reserve(50);
 }
 
-void loop()
-{
-  // put your main code here, to run repeatedly:
-
-  if (ultrason.ping_cm() > 20)
-  {
-    pumppower();
-    displaydata();
-  }
-  else
-  {
-    SendWaterLevel(); // Send Message
-    delay(60UL * 60UL * 1000UL);
-  }
-}
-
 void pumppower()
 {
 
@@ -105,6 +89,20 @@ void displaydata()
   lcd.clear();
 }
 
+String _readSerial()
+{
+  _timeout = 0;
+  while (!sim.available() && _timeout < 12000)
+  {
+    delay(13);
+    _timeout++;
+  }
+  if (sim.available())
+  {
+    return sim.readString();
+  }
+}
+
 void SendMessageData()
 {
   String Sensor1 = "";
@@ -144,16 +142,18 @@ void SendWaterLevel()
   _buffer = _readSerial();
 }
 
-String _readSerial()
+void loop()
 {
-  _timeout = 0;
-  while (!sim.available() && _timeout < 12000)
+  // put your main code here, to run repeatedly:
+
+  if (ultrason.ping_cm() > 20)
   {
-    delay(13);
-    _timeout++;
+    pumppower();
+    displaydata();
   }
-  if (sim.available())
+  else
   {
-    return sim.readString();
+    SendWaterLevel(); // Send Message
+    delay(60UL * 60UL * 1000UL);
   }
 }
